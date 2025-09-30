@@ -18,21 +18,22 @@ import {
   Cell,
 } from "recharts"
 
-export function AnalyticsSection() {
-  const { data, error } = useSWR<Analytics>("/api/analytics", fetcher)
+export function AnalyticsSection({ username }: { username?: string }) {
+  const key = username ? `/api/analytics?username=${encodeURIComponent(username)}` : "/api/analytics"
+  const { data, error } = useSWR<Analytics>(key, fetcher)
 
   if (error) return <div className="text-destructive">Failed to load analytics.</div>
   if (!data)
     return (
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="p-4 bg-card">
-          <div className="h-40 bg-secondary rounded" />
+          <div className="h-40 bg-secondary rounded animate-pulse" />
         </Card>
         <Card className="p-4 bg-card">
-          <div className="h-40 bg-secondary rounded" />
+          <div className="h-40 bg-secondary rounded animate-pulse" />
         </Card>
         <Card className="p-4 bg-card md:col-span-2">
-          <div className="h-64 bg-secondary rounded" />
+          <div className="h-64 bg-secondary rounded animate-pulse" />
         </Card>
       </div>
     )
@@ -65,6 +66,11 @@ export function AnalyticsSection() {
                   color: "var(--color-card-foreground)",
                   border: `1px solid var(--color-border)`,
                 }}
+                formatter={(value, name) => [
+                  Intl.NumberFormat().format(Number(value)),
+                  name === 'likes' ? 'Likes' : 'Comments'
+                ]}
+                labelFormatter={(label) => `Post ${label}`}
               />
               <Line type="monotone" dataKey="likes" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="comments" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
@@ -86,6 +92,11 @@ export function AnalyticsSection() {
                   color: "var(--color-card-foreground)",
                   border: `1px solid var(--color-border)`,
                 }}
+                formatter={(value, name) => [
+                  Intl.NumberFormat().format(Number(value)),
+                  name === 'likes' ? 'Likes' : 'Comments'
+                ]}
+                labelFormatter={(label) => `Post ${label}`}
               />
               <Bar dataKey="likes" fill="var(--color-chart-1)" />
               <Bar dataKey="comments" fill="var(--color-chart-2)" />
@@ -96,52 +107,84 @@ export function AnalyticsSection() {
 
       {data.demographics && (
         <Card className="p-4 bg-card text-card-foreground md:col-span-2">
-          <h2 className="text-lg font-semibold mb-2">Audience Demographics</h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: "Male", value: data.demographics.gender.male },
-                      { name: "Female", value: data.demographics.gender.female },
-                      { name: "Other", value: data.demographics.gender.other },
-                    ]}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
-                  >
-                    {[0, 1, 2].map((i) => (
-                      <Cell key={i} fill={palette[i % palette.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--color-card)",
-                      color: "var(--color-card-foreground)",
-                      border: `1px solid var(--color-border)`,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+          <h2 className="text-lg font-semibold mb-4">Audience Demographics</h2>
+          <div className="grid gap-8 md:grid-cols-3">
+            {/* Gender Distribution */}
+            <div>
+              <h3 className="text-sm font-medium mb-3 text-muted-foreground">Gender Split</h3>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Female", value: data.demographics.gender.female },
+                        { name: "Male", value: data.demographics.gender.male },
+                        { name: "Other", value: data.demographics.gender.other },
+                      ]}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={40}
+                      outerRadius={70}
+                      paddingAngle={2}
+                    >
+                      {[0, 1, 2].map((i) => (
+                        <Cell key={i} fill={palette[i % palette.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        background: "var(--color-card)",
+                        color: "var(--color-card-foreground)",
+                        border: `1px solid var(--color-border)`,
+                      }}
+                      formatter={(value) => [`${value}%`, 'Percentage']}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.demographics.age}>
-                  <XAxis dataKey="range" stroke="var(--color-muted-foreground)" />
-                  <YAxis stroke="var(--color-muted-foreground)" />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--color-card)",
-                      color: "var(--color-card-foreground)",
-                      border: `1px solid var(--color-border)`,
-                    }}
-                  />
-                  <Bar dataKey="percent" fill="var(--color-chart-2)" />
-                </BarChart>
-              </ResponsiveContainer>
+
+            {/* Age Distribution */}
+            <div>
+              <h3 className="text-sm font-medium mb-3 text-muted-foreground">Age Groups</h3>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={data.demographics.age} layout="horizontal">
+                    <XAxis type="number" stroke="var(--color-muted-foreground)" />
+                    <YAxis dataKey="range" type="category" stroke="var(--color-muted-foreground)" />
+                    <Tooltip
+                      contentStyle={{
+                        background: "var(--color-card)",
+                        color: "var(--color-card-foreground)",
+                        border: `1px solid var(--color-border)`,
+                      }}
+                      formatter={(value) => [`${value}%`, 'Percentage']}
+                    />
+                    <Bar dataKey="percent" fill="var(--color-chart-2)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Geographic Distribution */}
+            <div>
+              <h3 className="text-sm font-medium mb-3 text-muted-foreground">Top Countries</h3>
+              <div className="space-y-3">
+                {data.demographics.geography.slice(0, 5).map((country, index) => (
+                  <div key={country.country} className="flex items-center justify-between">
+                    <span className="text-sm">{country.country}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-2 bg-secondary rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-chart-1 rounded-full" 
+                          style={{ width: `${country.percent}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground w-8">{country.percent}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </Card>

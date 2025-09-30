@@ -27,7 +27,7 @@ export default function Page({ searchParams }: { searchParams?: { username?: str
         <ProfileCard username={username} />
         <StoriesHighlights username={username} />
         <HighlightsSection username={username} />
-        <AnalyticsSection />
+        <AnalyticsSection username={username} />
       </section>
 
       <section id="posts" className="mt-8 space-y-4">
