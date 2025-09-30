@@ -4,10 +4,14 @@ import useSWR from "swr"
 import { fetcher } from "@/lib/fetcher"
 import type { Post } from "@/lib/types"
 import { Card } from "@/components/ui/card"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Heart, MessageCircle, MapPin, Users } from "lucide-react"
 
 export function PostsGrid({ username }: { username?: string }) {
   const key = username ? `/api/posts?username=${encodeURIComponent(username)}` : "/api/posts"
   const { data, error } = useSWR<Post[]>(key, fetcher)
+  
   if (error) return <div className="text-destructive">Failed to load posts.</div>
   if (!data) return <GridSkeleton />
 
@@ -16,30 +20,97 @@ export function PostsGrid({ username }: { username?: string }) {
       <h2 className="text-lg font-semibold mb-3">Recent Posts</h2>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((post) => (
-          <Card key={post.id} className="bg-card text-card-foreground overflow-hidden rounded-lg">
-            <img
-              src={post.imageUrl || "/placeholder.svg"}
-              alt={`Post ${post.id}`}
-              className="w-full h-56 object-cover"
-              width={420}
-              height={420}
-            />
+          <Card key={post.pk} className="bg-card text-card-foreground overflow-hidden rounded-lg">
+            {/* Post Image */}
+            <div className="relative">
+              <img
+                src={post.thumbnailUrl || "/placeholder.svg"}
+                alt={`Post by ${post.user.username}`}
+                className="w-full h-56 object-cover"
+                width={420}
+                height={420}
+              />
+              
+              {/* Media Type Indicator */}
+              {post.mediaType === 8 && (
+                <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                  <Users className="w-3 h-3 inline mr-1" />
+                  Carousel
+                </div>
+              )}
+            </div>
+
             <div className="p-4">
-              <p className="text-pretty">{post.caption}</p>
-              <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
-                <span>❤️ {Intl.NumberFormat().format(post.likes)}</span>
-                <span>💬 {Intl.NumberFormat().format(post.comments)}</span>
+              {/* User Info */}
+              <div className="flex items-center gap-2 mb-3">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={post.user.profilePicUrl} alt={post.user.username} />
+                  <AvatarFallback>{post.user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium text-sm">{post.user.username}</span>
+                    {post.user.isVerified && (
+                      <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {post.tags.map((t) => (
-                  <span key={t} className="px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground text-xs">
-                    {t}
-                  </span>
-                ))}
+
+              {/* Caption */}
+              {post.captionText && (
+                <p className="text-sm text-pretty mb-3 line-clamp-3">
+                  {post.captionText}
+                </p>
+              )}
+
+              {/* Engagement Stats */}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                <div className="flex items-center gap-1">
+                  <Heart className="w-4 h-4" />
+                  <span>{Intl.NumberFormat().format(post.likeCount)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{Intl.NumberFormat().format(post.commentCount)}</span>
+                </div>
               </div>
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <Badge label={`Vibe: ${post.vibe}`} />
-                <Badge label={`Quality: ${post.quality}`} tone="accent" />
+
+              {/* Location */}
+              {post.location && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+                  <MapPin className="w-3 h-3" />
+                  <span>{post.location.name}</span>
+                  {post.location.city && <span>, {post.location.city}</span>}
+                </div>
+              )}
+
+              {/* User Tags */}
+              {post.usertags && post.usertags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {post.usertags.slice(0, 3).map((tag, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      @{tag.user.username}
+                    </Badge>
+                  ))}
+                  {post.usertags.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{post.usertags.length - 3} more
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Post Meta */}
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>
+                  {new Date(post.takenAt).toLocaleDateString()}
+                </span>
+                <Badge variant="outline" className="text-xs">
+                  {post.productType}
+                </Badge>
               </div>
             </div>
           </Card>
@@ -49,21 +120,23 @@ export function PostsGrid({ username }: { username?: string }) {
   )
 }
 
-function Badge({ label, tone = "muted" }: { label: string; tone?: "muted" | "accent" }) {
-  const toneClass = tone === "accent" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
-  return <span className={`px-2 py-0.5 rounded-md text-xs ${toneClass}`}>{label}</span>
-}
-
 function GridSkeleton() {
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
         <Card key={i} className="bg-card p-0 overflow-hidden">
-          <div className="h-56 bg-secondary" />
-          <div className="p-4 space-y-2">
-            <div className="h-4 w-2/3 bg-secondary rounded" />
-            <div className="h-4 w-1/3 bg-secondary rounded" />
-            <div className="h-6 w-1/2 bg-secondary rounded" />
+          <div className="h-56 bg-secondary animate-pulse" />
+          <div className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-secondary rounded-full animate-pulse" />
+              <div className="h-4 w-20 bg-secondary rounded animate-pulse" />
+            </div>
+            <div className="h-4 w-2/3 bg-secondary rounded animate-pulse" />
+            <div className="h-4 w-1/3 bg-secondary rounded animate-pulse" />
+            <div className="flex gap-2">
+              <div className="h-6 w-16 bg-secondary rounded animate-pulse" />
+              <div className="h-6 w-16 bg-secondary rounded animate-pulse" />
+            </div>
           </div>
         </Card>
       ))}

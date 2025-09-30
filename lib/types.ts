@@ -18,27 +18,130 @@ export type Profile = {
 }
 
 export type Post = {
+  pk: string
   id: string
-  profileId: string
-  imageUrl: string
-  caption: string
-  likes: number
-  comments: number
-  tags: string[]
-  vibe: "casual" | "luxury" | "aesthetic" | "energetic"
-  quality: "low" | "medium" | "high"
+  code: string
+  takenAt: string
+  takenAtTs: number
+  mediaType: number // 1 = image, 8 = carousel
+  productType: string
+  thumbnailUrl: string
+  captionText: string
+  likeCount: number
+  commentCount: number
+  hasLiked: boolean
+  commentsDisabled: boolean
+  location?: {
+    pk: number
+    name: string
+    city: string
+    lat: number
+    lng: number
+  }
+  user: {
+    pk: string
+    username: string
+    fullName: string
+    profilePicUrl: string
+    isVerified: boolean
+    isPrivate: boolean
+  }
+  usertags: Array<{
+    user: {
+      pk: string
+      username: string
+      fullName: string
+      profilePicUrl: string
+      isVerified: boolean
+    }
+    x: number
+    y: number
+  }>
+  imageVersions: Array<{
+    height: number
+    width: number
+    url: string
+  }>
+  resources?: Array<{
+    pk: string
+    thumbnailUrl: string
+    mediaType: number
+    imageVersions: Array<{
+      height: number
+      width: number
+      url: string
+    }>
+  }>
 }
 
 export type Reel = {
+  pk: string
   id: string
-  profileId: string
+  code: string
+  takenAt: string
+  takenAtTs: number
+  mediaType: number // 2 = video/reel
+  productType: string
   thumbnailUrl: string
-  caption: string
-  views: number
-  likes: number
-  comments: number
-  tags: string[]
-  vibe: "casual" | "lavish" | "nightlife"
+  captionText: string
+  likeCount: number
+  commentCount: number
+  playCount: number
+  viewCount: number
+  videoDuration: number
+  hasLiked: boolean
+  commentsDisabled: boolean
+  videoUrl: string
+  location?: {
+    pk: string
+    name: string
+    city: string
+    lat: number
+    lng: number
+  }
+  user: {
+    pk: string
+    username: string
+    fullName: string
+    profilePicUrl: string
+    isVerified: boolean
+    isPrivate: boolean
+  }
+  usertags: Array<{
+    user: {
+      pk: string
+      username: string
+      fullName: string
+      profilePicUrl: string
+      isVerified: boolean
+    }
+    x: number
+    y: number
+  }>
+  imageVersions: Array<{
+    height: number
+    width: number
+    url: string
+  }>
+  videoVersions: Array<{
+    bandwidth: number
+    height: number
+    width: number
+    id: string
+    type: number
+    url: string
+  }>
+  clipsMetadata?: {
+    originalSoundInfo?: any
+    musicInfo?: {
+      musicAssetInfo?: {
+        displayArtist: string
+        title: string
+        coverArtworkUri: string
+      }
+    }
+    isReel?: boolean
+  }
 }
 
 export type Story = {
