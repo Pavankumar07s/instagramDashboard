@@ -12,6 +12,10 @@ import { useState } from "react"
 export function HighlightsSection({ username }: { username?: string }) {
   const [selectedHighlight, setSelectedHighlight] = useState<Highlight | null>(null)
   
+  // Always call hooks at the top level
+  const key = username ? `/api/highlights?username=${encodeURIComponent(username)}` : null
+  const { data: highlights, error, isLoading } = useSWR<Highlight[]>(key, fetcher)
+  
   // Show welcome message when no username is provided
   if (!username) {
     return (
@@ -33,9 +37,6 @@ export function HighlightsSection({ username }: { username?: string }) {
       </section>
     )
   }
-  
-  const key = `/api/highlights?username=${encodeURIComponent(username)}`
-  const { data: highlights, error, isLoading } = useSWR<Highlight[]>(key, fetcher)
 
   if (error) return <div className="text-destructive text-sm">Failed to load highlights for @{username}.</div>
   if (isLoading) return <HighlightsSkeleton />

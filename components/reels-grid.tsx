@@ -9,6 +9,10 @@ import { Badge } from "@/components/ui/badge"
 import { Heart, MessageCircle, Play, Eye, Clock, MapPin, Users } from "lucide-react"
 
 export function ReelsGrid({ username }: { username?: string }) {
+  // Always call hooks at the top level
+  const key = username ? `/api/reels?username=${encodeURIComponent(username)}` : null
+  const { data, error } = useSWR<Reel[]>(key, fetcher)
+  
   // Show welcome message when no username is provided
   if (!username) {
     return (
@@ -30,9 +34,6 @@ export function ReelsGrid({ username }: { username?: string }) {
       </section>
     )
   }
-
-  const key = `/api/reels?username=${encodeURIComponent(username)}`
-  const { data, error } = useSWR<Reel[]>(key, fetcher)
   
   if (error) return <div className="text-destructive">Failed to load reels for @{username}.</div>
   if (!data) return <GridSkeleton />

@@ -15,6 +15,10 @@ export function StoriesHighlights({ username }: { username?: string }) {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null)
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
   
+  // Always call hooks at the top level
+  const key = username ? `/api/stories?username=${encodeURIComponent(username)}` : null
+  const { data: stories, error, isLoading } = useSWR<Story[]>(key, fetcher)
+  
   // Show welcome message when no username is provided
   if (!username) {
     return (
@@ -36,9 +40,6 @@ export function StoriesHighlights({ username }: { username?: string }) {
       </section>
     )
   }
-  
-  const key = `/api/stories?username=${encodeURIComponent(username)}`
-  const { data: stories, error, isLoading } = useSWR<Story[]>(key, fetcher)
 
   const handleStoryClick = (story: Story) => {
     setSelectedStory(story)

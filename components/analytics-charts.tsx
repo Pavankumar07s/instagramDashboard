@@ -19,6 +19,10 @@ import {
 } from "recharts"
 
 export function AnalyticsSection({ username }: { username?: string }) {
+  // Always call hooks at the top level
+  const key = username ? `/api/analytics?username=${encodeURIComponent(username)}` : null
+  const { data, error } = useSWR<Analytics>(key, fetcher)
+
   // Show welcome message when no username is provided
   if (!username) {
     return (
@@ -53,9 +57,6 @@ export function AnalyticsSection({ username }: { username?: string }) {
       </section>
     )
   }
-
-  const key = `/api/analytics?username=${encodeURIComponent(username)}`
-  const { data, error } = useSWR<Analytics>(key, fetcher)
 
   if (error) return <div className="text-destructive">Failed to load analytics for @{username}.</div>
   if (!data)

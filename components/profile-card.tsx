@@ -8,6 +8,10 @@ import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Shield, Lock } from "lucide-react"
 
 export function ProfileCard({ username }: { username?: string }) {
+  // Always call hooks at the top level
+  const key = username ? `/api/profile?username=${encodeURIComponent(username)}` : null
+  const { data, error, isLoading } = useSWR<Profile>(key, fetcher)
+  
   // Show welcome message when no username is provided
   if (!username) {
     return (
@@ -32,9 +36,6 @@ export function ProfileCard({ username }: { username?: string }) {
       </Card>
     )
   }
-
-  const key = `/api/profile?username=${encodeURIComponent(username)}`
-  const { data, error, isLoading } = useSWR<Profile>(key, fetcher)
 
   if (error) return <div className="text-destructive">Failed to load profile for @{username}.</div>
 

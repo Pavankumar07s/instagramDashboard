@@ -9,6 +9,10 @@ import { Badge } from "@/components/ui/badge"
 import { Heart, MessageCircle, MapPin, Users } from "lucide-react"
 
 export function PostsGrid({ username }: { username?: string }) {
+  // Always call hooks at the top level
+  const key = username ? `/api/posts?username=${encodeURIComponent(username)}` : null
+  const { data, error } = useSWR<Post[]>(key, fetcher)
+  
   // Show welcome message when no username is provided
   if (!username) {
     return (
@@ -30,9 +34,6 @@ export function PostsGrid({ username }: { username?: string }) {
       </section>
     )
   }
-
-  const key = `/api/posts?username=${encodeURIComponent(username)}`
-  const { data, error } = useSWR<Post[]>(key, fetcher)
   
   if (error) return <div className="text-destructive">Failed to load posts for @{username}.</div>
   if (!data) return <GridSkeleton />
