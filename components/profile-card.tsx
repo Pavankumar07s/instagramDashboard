@@ -8,10 +8,35 @@ import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Shield, Lock } from "lucide-react"
 
 export function ProfileCard({ username }: { username?: string }) {
-  const key = username ? `/api/profile?username=${encodeURIComponent(username)}` : "/api/profile"
+  // Show welcome message when no username is provided
+  if (!username) {
+    return (
+      <Card className="bg-card text-card-foreground p-8 rounded-lg">
+        <div className="text-center space-y-4">
+          <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-2xl font-bold">IG</span>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Welcome to Instagram Analytics Dashboard</h1>
+            <p className="text-muted-foreground">
+              Enter an Instagram username in the search field above to view detailed analytics, posts, reels, and insights.
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <span>Try searching for:</span>
+            <Badge variant="secondary">cristiano</Badge>
+            <Badge variant="secondary">therock</Badge>
+            <Badge variant="secondary">selenagomez</Badge>
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
+  const key = `/api/profile?username=${encodeURIComponent(username)}`
   const { data, error, isLoading } = useSWR<Profile>(key, fetcher)
 
-  if (error) return <div className="text-destructive">Failed to load profile.</div>
+  if (error) return <div className="text-destructive">Failed to load profile for @{username}.</div>
 
   return (
     <Card className="bg-card text-card-foreground p-6 rounded-lg">

@@ -15,7 +15,29 @@ export function StoriesHighlights({ username }: { username?: string }) {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null)
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
   
-  const key = username ? `/api/stories?username=${encodeURIComponent(username)}` : null
+  // Show welcome message when no username is provided
+  if (!username) {
+    return (
+      <section>
+        <h2 className="text-lg font-semibold mb-3">Stories</h2>
+        <Card className="bg-card text-card-foreground p-6 rounded-lg">
+          <div className="text-center space-y-4">
+            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm">📱</span>
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-semibold">No Stories Available</h4>
+              <p className="text-sm text-muted-foreground">
+                Search for a username to view their Instagram stories.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
+    )
+  }
+  
+  const key = `/api/stories?username=${encodeURIComponent(username)}`
   const { data: stories, error, isLoading } = useSWR<Story[]>(key, fetcher)
 
   const handleStoryClick = (story: Story) => {

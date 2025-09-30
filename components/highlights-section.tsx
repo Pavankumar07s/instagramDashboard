@@ -12,11 +12,32 @@ import { useState } from "react"
 export function HighlightsSection({ username }: { username?: string }) {
   const [selectedHighlight, setSelectedHighlight] = useState<Highlight | null>(null)
   
-  const key = username ? `/api/highlights?username=${encodeURIComponent(username)}` : null
+  // Show welcome message when no username is provided
+  if (!username) {
+    return (
+      <section>
+        <h2 className="text-lg font-semibold mb-3">Highlights</h2>
+        <Card className="bg-card text-card-foreground p-6 rounded-lg">
+          <div className="text-center space-y-4">
+            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm">⭐</span>
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-semibold">No Highlights Available</h4>
+              <p className="text-sm text-muted-foreground">
+                Search for a username to view their Instagram story highlights.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
+    )
+  }
+  
+  const key = `/api/highlights?username=${encodeURIComponent(username)}`
   const { data: highlights, error, isLoading } = useSWR<Highlight[]>(key, fetcher)
 
-  if (!username) return null
-  if (error) return <div className="text-destructive text-sm">Failed to load highlights.</div>
+  if (error) return <div className="text-destructive text-sm">Failed to load highlights for @{username}.</div>
   if (isLoading) return <HighlightsSkeleton />
   if (!highlights || highlights.length === 0) return null
 

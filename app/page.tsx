@@ -8,17 +8,29 @@ import { SearchHeader } from "@/components/search-header"
 
 export default function Page({ searchParams }: { searchParams?: { username?: string } }) {
   const username = searchParams?.username
+  
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
       <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-balance">Instagram Profile Dashboard</h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-balance">Instagram Profile Dashboard</h1>
+          {!username && (
+            <p className="text-muted-foreground mt-1">
+              Analyze any Instagram profile with detailed insights and analytics
+            </p>
+          )}
+        </div>
         <div className="flex items-center gap-2">
-          <a href="#posts" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm">
-            View Posts
-          </a>
-          <a href="#reels" className="px-3 py-1.5 rounded-md bg-accent text-accent-foreground text-sm">
-            View Reels
-          </a>
+          {username && (
+            <>
+              <a href="#posts" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm">
+                View Posts
+              </a>
+              <a href="#reels" className="px-3 py-1.5 rounded-md bg-accent text-accent-foreground text-sm">
+                View Reels
+              </a>
+            </>
+          )}
           <SearchHeader />
         </div>
       </header>

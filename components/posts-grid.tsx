@@ -9,10 +9,32 @@ import { Badge } from "@/components/ui/badge"
 import { Heart, MessageCircle, MapPin, Users } from "lucide-react"
 
 export function PostsGrid({ username }: { username?: string }) {
-  const key = username ? `/api/posts?username=${encodeURIComponent(username)}` : "/api/posts"
+  // Show welcome message when no username is provided
+  if (!username) {
+    return (
+      <section>
+        <h2 className="text-lg font-semibold mb-3">Recent Posts</h2>
+        <Card className="bg-card text-card-foreground p-8 rounded-lg">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xl">📸</span>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">No Posts to Display</h3>
+              <p className="text-muted-foreground">
+                Search for an Instagram username to view their latest posts with engagement metrics.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
+    )
+  }
+
+  const key = `/api/posts?username=${encodeURIComponent(username)}`
   const { data, error } = useSWR<Post[]>(key, fetcher)
   
-  if (error) return <div className="text-destructive">Failed to load posts.</div>
+  if (error) return <div className="text-destructive">Failed to load posts for @{username}.</div>
   if (!data) return <GridSkeleton />
 
   return (

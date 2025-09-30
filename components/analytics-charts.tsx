@@ -19,10 +19,45 @@ import {
 } from "recharts"
 
 export function AnalyticsSection({ username }: { username?: string }) {
-  const key = username ? `/api/analytics?username=${encodeURIComponent(username)}` : "/api/analytics"
+  // Show welcome message when no username is provided
+  if (!username) {
+    return (
+      <section className="grid gap-4 md:grid-cols-2">
+        <Card className="p-8 bg-card text-card-foreground md:col-span-2">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xl">📊</span>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">No Analytics to Display</h3>
+              <p className="text-muted-foreground">
+                Search for an Instagram username to view detailed engagement analytics, audience demographics, and performance trends.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3 mt-6">
+              <div className="p-4 border border-border rounded-lg">
+                <div className="text-2xl font-bold text-muted">0</div>
+                <div className="text-sm text-muted-foreground">Avg Likes</div>
+              </div>
+              <div className="p-4 border border-border rounded-lg">
+                <div className="text-2xl font-bold text-muted">0</div>
+                <div className="text-sm text-muted-foreground">Avg Comments</div>
+              </div>
+              <div className="p-4 border border-border rounded-lg">
+                <div className="text-2xl font-bold text-muted">0%</div>
+                <div className="text-sm text-muted-foreground">Engagement Rate</div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </section>
+    )
+  }
+
+  const key = `/api/analytics?username=${encodeURIComponent(username)}`
   const { data, error } = useSWR<Analytics>(key, fetcher)
 
-  if (error) return <div className="text-destructive">Failed to load analytics.</div>
+  if (error) return <div className="text-destructive">Failed to load analytics for @{username}.</div>
   if (!data)
     return (
       <div className="grid gap-4 md:grid-cols-2">
