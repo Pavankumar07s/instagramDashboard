@@ -1,5 +1,6 @@
 import { ProfileCard } from "@/components/profile-card"
 import { StoriesHighlights } from "@/components/stories-highlights"
+import { HighlightsSection } from "@/components/highlights-section"
 import { AnalyticsSection } from "@/components/analytics-charts"
 import { PostsGrid } from "@/components/posts-grid"
 import { ReelsGrid } from "@/components/reels-grid"
@@ -25,6 +26,7 @@ export default function Page({ searchParams }: { searchParams?: { username?: str
       <section className="space-y-6">
         <ProfileCard username={username} />
         <StoriesHighlights username={username} />
+        <HighlightsSection username={username} />
         <AnalyticsSection />
       </section>
 

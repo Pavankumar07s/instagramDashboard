@@ -59,6 +59,27 @@ export type Story = {
   }
 }
 
+export type Highlight = {
+  id: string
+  pk: string
+  title: string
+  createdAt: string
+  mediaCount: number
+  coverMedia: {
+    url: string
+    width: number
+    height: number
+  }
+  user: {
+    pk: string
+    username: string
+    fullName: string
+    profilePicUrl: string
+    isVerified: boolean
+  }
+  isPinnedHighlight: boolean
+}
+
 export type Analytics = {
   avgLikes: number
   avgComments: number
